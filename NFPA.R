@@ -32,18 +32,6 @@ maintain_cost.linear <- function(s, params) {
     return(s * params[1])
 }
 
-maintain_cost.quadratic <- function(s, params) {
-    return(s * params[1] + s^2 * params[2])
-}
-
-maintain_cost.exponential <- function(s, params) {
-    return(exp(s * params[1]))
-}
-
-maintain_cost.log <- function(s, params) {
-    return(log(params[1] + s * params[2]))
-}
-
 choice_prob <- function(cost_array) {
     # minus minmum of each row
     cost <- cost_array - apply(cost_array, 1, min)
