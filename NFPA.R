@@ -2,20 +2,9 @@
 # Created by: XUE
 # Created on: 5/26/2021
 
-library(msm)
-
-lower <- 0
-upper <- 15000
-mu <- 6000
-sigma <- 4000
-p.x0 <- ptnorm(5000, mean = mu, sd = sigma, lower = lower, upper = upper)
-p.x1 <- ptnorm(10000, mean = mu, sd = sigma, lower = lower, upper = upper) - p.x0
-p.x2 <- 1 - p.x0 - p.x1
-p <- c(p.x0, p.x1, p.x2)
-RC <- 20
-theta1.1 <- 0.5
-theta1.2 <- 0.01
-beta <- 0.75
+library(tictoc)
+tic(msg = "start to run ......")
+data <- read.csv("./data/bus_df_lin.csv")
 
 myopic_costs <- function(S, MF, params) {
     rc <- params[1]
@@ -55,7 +44,7 @@ contraction_mapping <- function(S, p, MF, params, beta = 0.75, threshold = 1e-6,
     m.rep <- cbind(1, matrix(0, S, S - 1))
     k <- 0
     EV <- matrix(0, S, 2)
-    EV.myopic <- EV.new <- myopic_costs(S, MF, params, p)
+    EV.myopic <- EV.new <- myopic_costs(S, MF, params)
     achieved <- TRUE
     while (max(abs(EV.new - EV)) > threshold) {
         EV <- EV.new
@@ -84,32 +73,36 @@ contraction_mapping <- function(S, p, MF, params, beta = 0.75, threshold = 1e-6,
     return(list(CP_forward = choice_prob(EV.new), CP_myopic = choice_prob(EV.myopic)))
 }
 
-dynamicLogit <- function(params, data, S, p, MF) {
+dynamicLogit <- function(params, data, p, MF) {
     endog <- data$choice
     exog <- data$state
     N <- length(endog)
-    S <- max(exdog) * 2
+    S <- max(exog) * 2
     m.st <- matrix(0, S, N)
     for (s in 0 : (S - 1)) {
         m.st[s + 1,] <- (exog == s) * 1
     }
     m.d <- rbind(t(1 - endog), endog)
     util <- contraction_mapping(S = S, p = p, MF = MF, params = params, beta = 0.75, suppr_output = TRUE)
-    pchoice <- util$CP_forword
+    pchoice <- util$CP_forward
     logprob <- log(t(m.st) %*% pchoice)
     return(-sum(logprob * t(m.d)))
 }
 
 bounds <- c(1e-6, Inf)
 npars <- 2
+p <- c(0.36, 0.48, 0.16)
+
+# LL <- dynamicLogit(params = rep(.1, npars), data = data,S = S,p = p, MF = maintain_cost.linear)
 lin_fit <- optim(par = rep(.1, npars),
                  fn = dynamicLogit,
                  method = "L-BFGS-B",
                  lower = bounds[1],
                  upper = bounds[2],
                  data = data,
-                 S = S,
                  p = p,
                  MF = maintain_cost.linear,
-                 control = list(fnscale = 1)
+                 control = list(fnscale = 1),
+                 hessian = TRUE
 )
+toc()
