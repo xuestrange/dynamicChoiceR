@@ -45,7 +45,7 @@ library(msm)
 # In this recreation, we assume that the replacement cost is a constant RC, 
 # and allow the maintenance cost MC(s,theta_1) to be a linear, exponential 
 # or logarithmic function of the state of the bus scaled by a 
-# parameter theta_1 8【0与
+# parameter theta_1
 
 #DATA GENERATING PROCESS--------------------------------------------
 
@@ -144,7 +144,7 @@ log_cost <- function(s, params) log(params[1] + s*params[2])
 choice_prob <- function(cost_array){
   
   # Returns the probability of each choice, conditional on an array of state/decision costs.
-    
+
   S <- nrow(cost_array)
   cost <- cost_array-apply(cost_array, 1, min) #take the difference since 1) results are the same 2) more stable with exp()
   util <- exp(-cost)
@@ -401,7 +401,7 @@ ggplot(ggdat2,aes(y=pMaint,x=State,lty=dataType,color=dataType))+geom_line(lwd=1
 
 # We only need the decision state and the choice, as the other variables will not be used in the estimation section.
 
-write.csv(bus_df_lin,file="bus_df_lin.csv",row.names = FALSE)
+write.csv(bus_df_lin, file = "data/bus_df_lin.csv", row.names = FALSE)
 
 # VI. Estimation
 
