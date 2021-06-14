@@ -5,7 +5,7 @@
 library(tictoc)
 tic(msg = "start to run ......")
 data <- read.csv("./data/bus_df_lin.csv")
-
+# data <- read.csv("https://github.com/waynejtaylor/Single-Agent-Dynamic-Choice/blob/master/bus_df_lin.csv")
 myopic_costs <- function(S, MF, params) {
     rc <- params[1]
     maintain_cost <- rep(NA, S)
@@ -106,3 +106,7 @@ lin_fit <- optim(par = rep(.1, npars),
                  hessian = TRUE
 )
 toc()
+
+# Hypothesis Test
+source("t_test.R")
+t_test(alpha = 0.05, n = 100000, fit = lin_fit)
